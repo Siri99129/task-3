@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Responsive Quiz + API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #006699;
+      --hover: #004d66;
+      --light-bg: #f5f5f5;
+      --text: #333;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+    }
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+    section {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      flex: 1 1 300px;
+      max-width: 500px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .quiz-question {
+      margin-bottom: 1rem;
+    }
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: var(--primary);
+      color: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .option-btn:hover {
+      background: var(--hover);
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .joke-box {
+      font-style: italic;
+      margin-top: 1rem;
+    }
+    button.fetch-btn {
+      background: var(--primary);
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button.fetch-btn:hover {
+      background: var(--hover);
+    }
+    @media (max-width: 768px) {
+      header {
+        font-size: 1.3rem;
+      }
+      section {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Responsive Interactive Quiz + Joke Fetcher</h1>
+  </header>
+  <main>
+    <!-- Quiz Section -->
+    <section>
+      <h2>Quiz Time!</h2>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+      <div class="result" id="quizResult"></div>
+    </section>
+    <!-- Joke API Section -->
+    <section>
+      <h2>Get a Random Joke</h2>
+      <button class="fetch-btn" onclick="fetchJoke()">Fetch Joke</button>
+      <div class="joke-box" id="jokeDisplay"></div>
+    </section>
+  </main>
+  <script>
+    // Quiz Logic
+    const quizData = [
+      {
+        question: "What is the capital of France?",
+        options: ["Paris", "Berlin", "Madrid", "Rome"],
+        answer: "Paris"
+      },
+      {
+        question: "Which language runs in a web browser?",
+        options: ["Python", "C", "Java", "JavaScript"],
+        answer: "JavaScript"
+      },
+      {
+        question: "What does CSS stand for?",
+        options: ["Cascading Style Sheets", "Computer Style Sheet", "Creative Style Syntax", "Color Style System"],
+        answer: "Cascading Style Sheets"
+      }
+    ];
+    let currentQuestion = 0;
+    function loadQuiz() {
+      const q = quizData[currentQuestion];
+      document.getElementById("quizQuestion").textContent = q.question;
+      const optionsContainer = document.getElementById("quizOptions");
+      optionsContainer.innerHTML = "";
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option);
+        optionsContainer.appendChild(btn);
+      });
+      document.getElementById("quizResult").textContent = "";
+    }
+    function checkAnswer(selected) {
+      const result = document.getElementById("quizResult");
+      const correct = quizData[currentQuestion].answer;
+      if (selected === correct) {
+        result.textContent = "✅ Correct!";
+        result.style.color = "green";
+      } else {
+        result.textContent = `❌ Wrong. Correct answer: ${correct}`;
+        result.style.color = "red";
+      }
+      setTimeout(() => {
+        currentQuestion = (currentQuestion + 1) % quizData.length;
+        loadQuiz();
+      }, 2000);
+    }
+    loadQuiz();
+    // Joke API
+    async function fetchJoke() {
+      const jokeEl = document.getElementById("jokeDisplay");
+      jokeEl.textContent = "⏳ Loading...";
+      try {
+        const res = await fetch("https://official-joke-api.appspot.com/random_joke");
+        const data = await res.json();
+        jokeEl.textContent = `${data.setup} — ${data.punchline}`;
+      } catch (err) {
+        jokeEl.textContent = "⚠️ Could not fetch joke.";
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
